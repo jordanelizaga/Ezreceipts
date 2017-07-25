@@ -10,13 +10,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ToggleButton;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements View.OnClickListener {
 
     private Guideline vertFiftyGuide;
 
@@ -26,6 +27,9 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         vertFiftyGuide = findViewById(R.id.main_50pVertGuide);
+
+        /* Set onClickButtonListeners*/
+        findViewById(R.id.main_saveBtn).setOnClickListener(this);
 
         ToggleButton hideImageBtn = findViewById(R.id.main_hideImageBtn);
         hideImageBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -41,26 +45,19 @@ public class MainActivity extends Activity {
                 }
             }
         });
+    }
 
-        // get the path to sdcard
-        // to this path add a new directory path
-        if (canWriteOnExternalStorage()) {
-            File sdcard = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
-            //File dir = new File(sdcard);
-            // create this directory if not already created
-            //dir.mkdir();
-            // create the file in which we will write the contents
-            File file = new File(sdcard, "myTextFile.txt");
-            try {
-                FileOutputStream os = new FileOutputStream(file, true); // Boolean sets to append
-                //String data = "This is the content of my file \n This should be a new line \n";
-                String data = "This should be appended \n This should be a new line\n";
-                os.write(data.getBytes());
-                os.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.main_saveBtn:
+                EditText total = findViewById(R.id.main_total);
+                Log.v("myTag", "This button was clicked");
+                writePostToTextFile(total.getText() + "\n With a newline \n");
+                finish();
+                break;
         }
+
     }
 
     public static boolean canWriteOnExternalStorage() {
@@ -72,5 +69,27 @@ public class MainActivity extends Activity {
             return true;
         }
         return false;
+    }
+
+    public void writePostToTextFile(String str) {
+        // get the path to sdcard
+        // to this path add a new directory path
+        if (canWriteOnExternalStorage()) {
+            File sdcard = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
+            //File dir = new File(sdcard);
+            // create this directory if not already created
+            //dir.mkdir();
+            // create the file in which we will write the contents
+            File file = new File(sdcard, "myTextFile.txt");
+            try {
+                FileOutputStream os = new FileOutputStream(file, false); // Boolean sets to append
+                //String data = "This is the content of my file \n This should be a new line \n";
+                //String data = "This should be appended \n This should be a new line\n";
+                os.write(str.getBytes());
+                os.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
